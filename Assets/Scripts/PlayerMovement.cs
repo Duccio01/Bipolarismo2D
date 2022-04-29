@@ -6,14 +6,24 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D rb;
+    SpriteRenderer sp;
     private Vector2 movementVector;
-    public float speed = 5.0f;
-    public float jumpHeight = 7.0f;
+    [SerializeField] float speed = 5.0f;
+    [SerializeField] float jumpHeight = 15.0f;
+    bool isGrounded;
+    public Transform groundCheck;
+    public float radiusGroundCheck = 0.2f;
+    public LayerMask groundLayer;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        sp = GetComponent<SpriteRenderer>();
+    }
+    private void Start()
+    {
+        
     }
     private void OnMove(InputValue inputMove)
     {
@@ -21,11 +31,32 @@ public class PlayerMovement : MonoBehaviour
     }
     private void OnJump()
     {
-        rb.velocity += Vector2.up * jumpHeight;
+        if(isGrounded)
+        {    
+            rb.velocity = Vector2.up * jumpHeight;
+        }
     }
     // Update is called once per frame
     void Update()
     {
+        MovePlayer();
+        FlipPlayer();
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position,radiusGroundCheck,groundLayer);
+    }
+    void MovePlayer()
+    {   
         rb.velocity = new Vector2(movementVector.x * speed, rb.velocity.y);
+    }
+
+    void FlipPlayer()
+    {
+        if (rb.velocity.x<-0.1f)
+        {
+            sp.flipX = true;
+        }
+        if (rb.velocity.x > 0.1f)
+        {
+            sp.flipX = false;
+        }
     }
 }
